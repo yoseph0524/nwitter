@@ -3,6 +3,8 @@ import { ITweet } from "./timeline";
 import { auth, db, storage } from "../firebase";
 import { deleteDoc, doc } from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
+import { useState } from "react";
+import { Input } from "./auth-components";
 
 const Wrapper = styled.div`
   display: grid;
@@ -46,8 +48,31 @@ const DeleteButton = styled.button`
   cursor: pointer;
 `;
 
+const EditButton = styled.button`
+  background-color: blue;
+  color: white;
+  font-weight: 600;
+  border: 0;
+  font-size: 12px;
+  padding: 5px 10px;
+  text-transform: uppercase;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+`;
+const Form = styled.form`
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+`;
+
 export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
   const user = auth.currentUser;
+  const [isEdit, setEdit] = useState(false);
+  const [text, setText] = useState(tweet);
   const onDelete = async () => {
     const ok = confirm("Are you sure you want to delete this tweet?");
     if (!ok || user?.uid !== userId) return;
@@ -63,11 +88,43 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
       //
     }
   };
+  const onEdit = async () => {
+    const ok = confirm("Are you sure you want to delete this tweet?");
+    if (!ok || user?.uid !== userId) return;
+    setEdit(true);
+  };
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const {
+      target: { value },
+    } = e;
+    setText(value);
+    console.log(value);
+  };
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setEdit(false);
+  };
   return (
     <Wrapper>
       <Column>
         <Username>{username}</Username>
-        <Payload>{tweet}</Payload>
+        <Payload>{text}</Payload>
+        {isEdit ? (
+          <Form onSubmit={onSubmit}>
+            <Input
+              onChange={onChange}
+              name="text"
+              value={text}
+              placeholder="New Text"
+              type="text"
+            ></Input>
+          </Form>
+        ) : null}
+        {user?.uid === userId ? (
+          <EditButton onClick={onEdit}>Edit</EditButton>
+        ) : null}
         {user?.uid === userId ? (
           <DeleteButton onClick={onDelete}>Delete</DeleteButton>
         ) : null}
