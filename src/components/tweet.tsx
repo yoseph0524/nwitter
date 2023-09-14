@@ -95,11 +95,7 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
   };
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {
-      target: { value },
-    } = e;
-    setText(value);
-    console.log(value);
+    setText(e.target.value);
   };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -110,8 +106,10 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
     <Wrapper>
       <Column>
         <Username>{username}</Username>
-        <Payload>{text}</Payload>
-        {isEdit ? (
+
+        {!isEdit ? (
+          <Payload>{text}</Payload>
+        ) : (
           <Form onSubmit={onSubmit}>
             <Input
               onChange={onChange}
@@ -121,7 +119,7 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
               type="text"
             ></Input>
           </Form>
-        ) : null}
+        )}
         {user?.uid === userId ? (
           <EditButton onClick={onEdit}>Edit</EditButton>
         ) : null}
